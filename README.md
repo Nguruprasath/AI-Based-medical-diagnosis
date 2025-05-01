@@ -1,8 +1,9 @@
 # AI-Based-medical-diagnosis
 
-activate venv
+#activate venv
+
 cd venv/Script
 activate
 
-run this app
+#run this app
 python main.py
