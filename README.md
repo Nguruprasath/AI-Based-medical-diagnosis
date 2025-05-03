@@ -10,7 +10,8 @@ activate
 #run this app
 
 
+uvicorn backend:app --reload
+
+python -m http.server 8080
 
 
-
-python main.py
