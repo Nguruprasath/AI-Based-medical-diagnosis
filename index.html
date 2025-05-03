@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Diagnosis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-radius: 10px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #response {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Medical Diagnosis Form</h1>
+    <form id="diagnosisForm">
+        <label for="symptoms">Enter Symptoms (comma separated):</label>
+        <input type="text" id="symptoms" name="symptoms" placeholder="e.g., headache, vomiting" required>
+
+        <label for="days">How many days:</label>
+        <input type="number" id="days" name="days" min="1" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        document.getElementById("diagnosisForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const symptomsInput = document.getElementById("symptoms").value;
+            const symptomsArray = symptomsInput.split(",").map(symptom => symptom.trim().toLowerCase()); // Convert to array
+            const days = parseInt(document.getElementById("days").value);
+
+            const responseDiv = document.getElementById("response");
+
+            try {
+                const res = await fetch("http://127.0.0.1:8000/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        symptoms: symptomsArray,  // Send the symptoms as an array
+                        days: days
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    responseDiv.innerHTML = `<strong>Primary Diagnosis:</strong> ${data.primary_diagnosis}<br>
+                                            <strong>Secondary Diagnosis:</strong> ${data.secondary_diagnosis}<br>
+                                            <strong>Description:</strong> ${data.description}<br>
+                                            <strong>Risk Score:</strong> ${data.risk_score}<br>
+                                            <strong>Consult Doctor:</strong> ${data.consult_doctor ? 'Yes' : 'No'}`;
+                } else {
+                    responseDiv.innerHTML = `<strong>Error:</strong> ${JSON.stringify(data.detail)}`;
+                }
+            } catch (err) {
+                responseDiv.innerHTML = `<strong>Error:</strong> ${err.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
